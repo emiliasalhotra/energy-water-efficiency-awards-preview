@@ -1,0 +1,11 @@
+:root {
+    --brand-navy: #00093f;
+    --brand-green: #0ab3a1;
+    --brand-purple: #6b42d1;
+    --brand-lime: #9ad071;
+    --brand-pastel-blue: #719abc;
+    --brand-pastel-green: #b5d7be;
+    --brand-pastel-yellow: #f6d286;
+    --brand-pastel-red: #cc8989;
+    --brand-gradient: linear-gradient(110deg, var(--brand-green), var(--brand-lime));
+}
