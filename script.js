@@ -1,51 +1,53 @@
 'use strict';
 
 const categories = {
-    organizations: {
-        title: 'Organizations',
-        awards: [
-            'Energy Leader of the Year - Government Entities',
-            'Energy Leader of the Year - Industrial Entities',
-            'Energy Leader of the Year - Commercial Entities',
-            'Best Energy Conscious Community',
-            'Best Energy Conscious Developer',
-            'Top ESCO Company',
-            'Top FM Company',
-            'Best Electricity Efficiency Product / Solution',
-            'Best Water Efficiency Product / Solution',
-            'Best Efficient Appliances Retailer',
-            'Best Energy Efficient School'
-        ]
+    residential: {
+        title: 'Residential',
+        description: 'For villa owners making conservation part of everyday life.',
+        awards: ['Sustainable Villa of the Year'],
+        themes: 'Water conservation has greater emphasis, alongside electricity savings, efficient fixtures and irrigation, sustained behaviour, innovation and replicability. Numerical weights are not yet approved.',
+        evidence: 'Show household electricity and water consumption before and after your changes, efficient fixtures or irrigation measures, and how you sustain your savings.'
     },
-    projects: {
-        title: 'Projects & Campaigns',
-        awards: [
-            'Best Government Building Retrofitting Project',
-            'Best Commercial Building Retrofitting Project',
-            'Best Industrial Process Improvement Project',
-            'Best Residential Building Retrofitting Project',
-            'Best Energy Efficiency Awareness Campaign',
-            'Best Irrigation / Water Efficiency Project',
-            'Best Efficient Cooling Project / Initiative'
-        ]
+    commercial: {
+        title: 'Commercial',
+        description: 'For efficient businesses and retailers helping customers choose better.',
+        awards: ['Best Commercial Efficient Entities', 'Best Efficient Appliances Retailer'],
+        themes: 'Commercial entities: measured savings, efficient building operations, improvement projects, leadership and sustained impact. Retailers: efficient appliance ranges and promotion, sales and adoption evidence, customer awareness and market impact.',
+        evidence: 'For commercial entities, show consumption comparisons and building or operational improvements. For retailers, show efficient appliance ranges, sales or adoption results, and customer awareness activities.'
     },
-    individuals: {
-        title: 'Individuals',
-        awards: [
-            'Sustainable Villa of the Year',
-            'Most Efficient Plants Farmer (Energy & Water Efficiency)',
-            'Most Efficient Livestock Farmer (Energy & Water Efficiency)',
-            'Best School Energy Champion - Student / Student Teams',
-            'Top Efficient Appliances Salesperson',
-            'Best Influencer',
-            'Energy Champion of the Year (All Segments)'
-        ]
+    industrial: {
+        title: 'Industrial',
+        description: 'For industries making every process more resource-efficient.',
+        awards: ['Best Industrial Efficient Entities'],
+        themes: 'Measured energy and water performance, process and operational efficiency, implemented projects and technology upgrades, resource optimization, innovation and replicability.',
+        evidence: 'Show measured consumption and savings, process or operational improvements, technology upgrades, and how the results can be sustained or replicated.'
+    },
+    government: {
+        title: 'Government',
+        description: 'For public entities leading by example, from policy to performance.',
+        awards: ['Best Government Efficient Entities'],
+        themes: 'Measured energy and water performance, retrofits and infrastructure, policies and governance, behavioural initiatives, efficient technologies and replicability.',
+        evidence: 'Show measured electricity and water savings, implemented retrofits, policies or behavioural initiatives, and evidence of sustained performance.'
+    },
+    education: {
+        title: 'Education',
+        description: 'For schools inspiring the next generation of changemakers.',
+        awards: ['Best Energy & Water Efficient School'],
+        themes: 'Measured electricity and water savings, school initiatives, student and staff participation, awareness, innovation and sustained or replicable results.',
+        evidence: 'Show school electricity and water savings, conservation projects, student and staff engagement, and how the initiatives will continue.'
+    },
+    agriculture: {
+        title: 'Agriculture',
+        description: 'For private farms growing a more water-wise future.',
+        awards: ['Sustainable Farm of the Year - Water Conservation'],
+        themes: 'Private-farm water consumption reduction, efficient irrigation systems and practices, water management, innovative sustainable technology and replicability.',
+        evidence: 'Show farm water consumption before and after changes, irrigation systems or practices, water-management measures, and how savings were measured.'
     }
 };
 
 const form = document.getElementById('submissionForm');
 const panels = Array.from(document.querySelectorAll('.form-panel'));
-const categoryInput = document.getElementById('category');
+const categoryInput = document.getElementById('sector');
 const awardInput = document.getElementById('award');
 const nextButton = document.getElementById('nextStep');
 const backButton = document.getElementById('backStep');
@@ -69,13 +71,16 @@ function showMessage(text, error = false) {
 }
 
 function updateAwards(selectedAward = '') {
-    awardInput.replaceChildren(new Option(categoryInput.value ? 'Choose your proposed award' : 'Select a category first', ''));
+    awardInput.replaceChildren(new Option(categoryInput.value ? 'Choose your proposed award' : 'Select a sector first', ''));
     const category = categories[categoryInput.value];
     awardInput.disabled = !category;
     if (category) {
         category.awards.forEach(award => awardInput.add(new Option(award, award)));
         awardInput.value = selectedAward;
     }
+    document.getElementById('selectedSector').textContent = category?.title || 'Choose a sector in About you.';
+    document.getElementById('sectorGuidance').textContent = category?.themes || 'Select a sector to see its proposed evaluation themes.';
+    document.getElementById('evidenceGuidance').textContent = category?.evidence || 'Show before-and-after consumption, the measures you implemented, and how you calculated your savings.';
 }
 
 function validateStep() {
@@ -112,8 +117,7 @@ function reviewRows(fields) {
     return [
         ['Applicant', `${fields.fullName || ''} / ${fields.applicantType || ''}`],
         ['Contact', `${fields.email || ''} / ${fields.phone || ''}`],
-        ['Location & sector', `${fields.region || ''} / ${fields.sector || ''}`],
-        ['Category', categories[fields.category]?.title || ''],
+        ['Location & sector', `${fields.region || ''} / ${categories[fields.sector]?.title || ''}`],
         ['Proposed award', fields.award || ''],
         ['Initiative', fields.projectTitle || ''],
         ['Your story', fields.projectDescription || ''],
@@ -290,13 +294,22 @@ document.getElementById('restoreDraft').addEventListener('click', async () => {
         form.reset();
         for (const [name, value] of Object.entries(draft.fields)) {
             const field = form.elements.namedItem(name);
-            if (field && field.type !== 'checkbox' && name !== 'award') field.value = value;
+            if (field && field.type !== 'checkbox' && name !== 'award') {
+                if (name === 'sector') field.value = value.toLowerCase();
+                else if (name === 'applicantType' && value === 'Student / student team') field.value = 'School';
+                else field.value = value;
+            }
         }
         updateAwards(draft.fields.award);
+        const selectionChanged = !categories[categoryInput.value]
+            || Boolean(draft.fields.award && awardInput.value !== draft.fields.award)
+            || draft.fields.applicantType === 'Student / student team';
         selectedFiles = draft.files || [];
         renderFiles();
-        goToStep(Math.min(Math.max(draft.step || 0, 0), 3));
-        showMessage('Draft and attachments restored. Please review your information and confirm the declarations again.');
+        goToStep(selectionChanged ? 0 : Math.min(Math.max(draft.step || 0, 0), 3));
+        showMessage(selectionChanged
+            ? 'Draft and attachments restored. The proposed award list has changed; please review your applicant type, sector and current Round 1 award. Legacy student entries now use School as the applicant type. Your other details are retained.'
+            : 'Draft and attachments restored. Please review your information and confirm the declarations again.');
     } catch (error) {
         showMessage(error.message, true);
     }
@@ -400,6 +413,9 @@ document.querySelectorAll('[data-category]').forEach(button => {
         dialogCategory = button.dataset.category;
         const category = categories[dialogCategory];
         document.getElementById('dialogTitle').textContent = category.title;
+        document.getElementById('dialogDescription').textContent = category.description;
+        document.getElementById('dialogThemes').textContent = category.themes;
+        document.getElementById('dialogEvidence').textContent = category.evidence;
         const list = document.getElementById('dialogAwards');
         list.replaceChildren();
         category.awards.forEach(award => {
@@ -411,13 +427,13 @@ document.querySelectorAll('[data-category]').forEach(button => {
     });
 });
 document.getElementById('chooseCategory').addEventListener('click', () => {
-    categoryInput.value = dialogCategory;
-    updateAwards();
     categoryDialog.close();
     if (form.hidden) {
         document.getElementById('savedApplication').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
     }
+    categoryInput.value = dialogCategory;
+    updateAwards();
     goToStep(0, false);
     document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
     document.getElementById('applicantType').focus({ preventScroll: true });
@@ -458,22 +474,31 @@ document.getElementById('clearLocalData').addEventListener('click', async () => 
 
 document.getElementById('downloadGuide').addEventListener('click', () => {
     const lines = [
-        'ENERGY & WATER EFFICIENCY AWARDS',
+        'ABU DHABI ENERGY & WATER EFFICIENCY AWARDS',
         'PREVIEW APPLICANT GUIDE - NOT OFFICIAL ENTRY RULES',
         '',
-        'Based on A1_Business Case_EWE_Awards_V2_Jan26_Clean.',
-        'All award names, eligibility, judging weights, dates and phased availability require final design and approval.',
+        'PROPOSED ROUND 1: SEVEN AWARDS ACROSS SIX SECTORS',
+        'Programme name, shortlist, evaluation themes and timeline are proposed and subject to approval.',
         '',
         'PURPOSE',
         'Recognize individuals and organizations conserving electricity and water in support of the Abu Dhabi Energy & Water Efficiency Strategy 2030.',
         '',
-        ...Object.values(categories).flatMap(category => [category.title.toUpperCase(), ...category.awards.map(award => `- ${award}`), '']),
+        ...Object.values(categories).flatMap(category => [
+            category.title.toUpperCase(), category.description,
+            ...category.awards.map(award => `- ${award}`),
+            `Initial evaluation themes: ${category.themes}`,
+            `Suggested evidence: ${category.evidence}`, ''
+        ]),
         'PREPARE YOUR STORY',
         'Describe your objectives, implementation period, measures, electricity/water savings and how you calculated them.',
         'Possible evidence includes before-and-after consumption, bills, reports, calculations and photographs.',
         '',
-        'PROPOSED EVALUATION THEMES',
-        'Savings, implementation, economics, creativity, outreach, collaboration and social impact.',
+        'PROPOSED TIMELINE - SUBJECT TO APPROVAL AND READINESS',
+        'Announcement: December 2026. Guidelines, T&Cs and qualification criteria: January 2027.',
+        'Submissions: February-March 2027. Evaluation: April-May 2027. Ceremony: May 2027.',
+        '',
+        'REQUIREMENTS AND TERMS',
+        'Final eligibility, qualification thresholds, scoring weights, required documents, entry terms and exact deadlines have not been approved or published in this preview.',
         '',
         'THIS PREVIEW',
         'Up to 5 non-empty PDF, DOC, DOCX, XLS, XLSX, PNG or JPG files, 10 MB per file.',
@@ -507,5 +532,6 @@ async function checkDraft() {
     }
 }
 
+updateAwards();
 goToStep(0, false);
 checkDraft();

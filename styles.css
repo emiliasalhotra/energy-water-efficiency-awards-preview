@@ -136,6 +136,18 @@ h2 em { color: var(--brand-purple); font-size: 1.05em; }
 .card-teal .card-description, .card-teal .card-count { color: var(--brand-navy); }
 .card-teal .card-top .icon, .card-teal .card-link { border-color: #00093f35; }
 .category-disclaimer { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 22px; color: var(--muted); font-size: 10px; line-height: 1.8; }
+.programme-status { color: #b5d7be; font-size: 11px; line-height: 1.7; margin-top: 12px; max-width: 380px; }
+.programme-timeline { margin-top: 48px; padding-top: 30px; border-top: 1px solid var(--line); }
+.programme-timeline h3 { font: 500 24px/1.3 var(--heading); }
+.programme-timeline > p { color: var(--muted); font-size: 12px; line-height: 1.8; margin: 10px 0 24px; }
+.timeline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 24px; padding: 0; margin: 0; list-style: none; }
+.timeline-grid li { border-top: 3px solid var(--brand-green); padding-top: 14px; }
+.timeline-grid span { display: block; color: var(--muted); font-size: 10px; line-height: 1.8; margin-bottom: 8px; }
+.timeline-grid strong { font-size: 13px; line-height: 1.6; }
+.sector-guidance { padding: 18px; margin-bottom: 22px; background: #0ab3a10c; border-left: 3px solid var(--brand-green); }
+.sector-guidance h3 { font: 500 20px/1.4 var(--heading); margin: 8px 0; }
+.sector-guidance p, .sector-guidance small { color: var(--muted); font-size: 12px; line-height: 1.8; }
+.sector-guidance small { display: block; margin-top: 10px; }
 .info-dot { border: 1px solid #9aaba6; border-radius: 50%; min-width: 13px; height: 13px; display: inline-flex; justify-content: center; align-items: center; font-size: 8px; }
 .manifesto { background: var(--brand-gradient); min-height: 325px; display: grid; grid-template-columns: 1fr 1.3fr; overflow: hidden; position: relative; }
 .manifesto-art { position: relative; min-height: 325px; overflow: hidden; background: radial-gradient(ellipse at 45% 70%, #84bbae55, transparent 65%); }
